@@ -40,7 +40,7 @@ export const chunkArrayBuffer = (buffer: ArrayBuffer, chunkSize: number): ArrayB
   return chunks;
 };
 
-export const mergeArrayBuffers = (buffers: ArrayBuffer[]): ArrayBuffer {
+export const mergeArrayBuffers = (buffers: ArrayBuffer[]): ArrayBuffer => {
   const totalLength = buffers.reduce((sum, buf) => sum + buf.byteLength, 0);
   const result = new Uint8Array(totalLength);
   let offset = 0;

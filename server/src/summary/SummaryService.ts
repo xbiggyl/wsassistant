@@ -1,5 +1,5 @@
-import { createLogger, generateId } from '@shared';
-import type { TranscriptChunk, Summary } from '@shared';
+import { createLogger, generateId } from '@meetassist/shared';
+import type { TranscriptChunk, Summary } from '@meetassist/shared';
 import OpenAI from 'openai';
 
 const log = createLogger('summary');

@@ -1,9 +1,19 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
+import { copyFileSync } from 'fs';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    {
+      name: 'copy-static-files',
+      writeBundle() {
+        // Copy manifest.json
+        copyFileSync('manifest.json', 'dist/manifest.json');
+      }
+    }
+  ],
   build: {
     outDir: 'dist',
     rollupOptions: {
@@ -23,7 +33,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
-      '@shared': resolve(__dirname, '../shared/src')
+      '@shared': resolve(__dirname, '../shared/dist')
     }
+  },
+  define: {
+    'process.env.NODE_ENV': '"production"'
   }
 });

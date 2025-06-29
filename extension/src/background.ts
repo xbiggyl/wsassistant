@@ -35,8 +35,22 @@ class BackgroundService {
       const meetingId = extractMeetingId(tab.url);
       if (meetingId) {
         log(`Detected Meet call: ${meetingId}`);
+        this.injectContentScript(tabId);
         this.injectSidebar(tabId, meetingId);
       }
+    }
+  }
+
+  private async injectContentScript(tabId: number): Promise<void> {
+    try {
+      console.log('Injecting content script into tab:', tabId);
+      await chrome.scripting.executeScript({
+        target: { tabId },
+        files: ['content/inject.js']
+      });
+      console.log('Content script injected successfully');
+    } catch (error) {
+      console.log('Failed to inject content script:', error);
     }
   }
 
@@ -54,7 +68,7 @@ class BackgroundService {
           // Create sidebar iframe
           const sidebar = document.createElement('iframe');
           sidebar.id = 'meetassist-sidebar';
-          sidebar.src = chrome.runtime.getURL('dist/sidebar.html');
+          sidebar.src = chrome.runtime.getURL('src/sidebar/index.html');
           sidebar.style.cssText = `
             position: fixed;
             top: 0;
@@ -160,13 +174,29 @@ class BackgroundService {
 
   private handleBackendMessage(message: any): void {
     log('Backend message:', message);
+    console.log('Background received backend message:', message);
     
     // Forward relevant messages to content scripts
+    this.sendMessageToTabs(message);
+  }
+
+  private sendMessageToTabs(message: any, retryCount: number = 0): void {
     chrome.tabs.query({ url: 'https://meet.google.com/*' }, (tabs) => {
+      console.log('Found tabs:', tabs.length);
       tabs.forEach(tab => {
         if (tab.id) {
-          chrome.tabs.sendMessage(tab.id, message).catch(() => {
-            // Ignore errors for inactive tabs
+          console.log('Sending message to tab:', tab.id, message);
+          chrome.tabs.sendMessage(tab.id, message).catch((error) => {
+            console.log('Failed to send message to tab:', tab.id, error);
+            
+            // Retry up to 3 times with exponential backoff
+            if (retryCount < 3) {
+              const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
+              console.log(`Retrying in ${delay}ms (attempt ${retryCount + 1})`);
+              setTimeout(() => {
+                this.sendMessageToTabs(message, retryCount + 1);
+              }, delay);
+            }
           });
         }
       });

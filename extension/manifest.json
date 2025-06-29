@@ -9,7 +9,8 @@
     "tabCapture",
     "storage",
     "scripting",
-    "desktopCapture"
+    "desktopCapture",
+    "tabs"
   ],
   
   "host_permissions": [
@@ -17,39 +18,30 @@
   ],
   
   "background": {
-    "service_worker": "dist/background.js",
+    "service_worker": "background.js",
     "type": "module"
   },
   
   "content_scripts": [
     {
       "matches": ["https://meet.google.com/*"],
-      "js": ["dist/content/inject.js"],
+      "js": ["content/inject.js"],
       "run_at": "document_start"
     }
   ],
   
   "action": {
-    "default_popup": "popup.html",
-    "default_title": "MeetAssist",
-    "default_icon": {
-      "16": "icons/icon16.png",
-      "32": "icons/icon32.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
-    }
-  },
-  
-  "icons": {
-    "16": "icons/icon16.png",
-    "32": "icons/icon32.png", 
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "default_popup": "src/popup/index.html",
+    "default_title": "MeetAssist"
   },
   
   "web_accessible_resources": [
     {
-      "resources": ["dist/sidebar.html", "dist/sidebar.js"],
+      "resources": [
+        "src/sidebar/index.html",
+        "sidebar.js",
+        "index.css"
+      ],
       "matches": ["https://meet.google.com/*"]
     }
   ]

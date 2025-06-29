@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import { createLogger, createMeetingFolder, sanitizeFilename } from '@shared';
-import type { MeetingMinutes } from '@shared';
+import { createLogger, createMeetingFolder, sanitizeFilename } from '@meetassist/shared';
+import type { MeetingMinutes } from '@meetassist/shared';
 
 const log = createLogger('storage');
 

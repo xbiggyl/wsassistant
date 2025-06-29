@@ -50,10 +50,17 @@ const Sidebar: React.FC = () => {
     
     // Listen for messages from content script
     const messageHandler = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return;
+      console.log('Sidebar received event:', event);
+      console.log('Event origin:', event.origin);
+      console.log('Window location origin:', window.location.origin);
+      
+      // Remove origin check for now to debug
+      // if (event.origin !== window.location.origin) return;
       
       const message = event.data;
       log('Received message:', message);
+      console.log('Message type:', message.type);
+      console.log('Message payload:', message.payload);
       
       handleMessage(message);
     };
@@ -75,6 +82,7 @@ const Sidebar: React.FC = () => {
   }, []);
 
   const handleMessage = (message: any) => {
+    console.log('Sidebar received message:', message);
     switch (message.type) {
       case 'init':
         log(`Initializing sidebar for meeting: ${message.meetingId}`);

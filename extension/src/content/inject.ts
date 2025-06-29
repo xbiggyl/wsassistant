@@ -3,6 +3,8 @@ import type { MeetingInfo, Participant } from '@shared';
 
 const log = createLogger('content');
 
+console.log('Content script loaded!');
+
 class MeetInjector {
   private meetingId: string | null = null;
   private meetingInfo: MeetingInfo | null = null;
@@ -11,11 +13,17 @@ class MeetInjector {
   private observer: MutationObserver | null = null;
 
   constructor() {
+    console.log('MeetInjector constructor called');
     this.init();
   }
 
   private async init(): Promise<void> {
+    console.log('MeetInjector init called');
     log('Initializing Meet injector');
+    
+    // Listen for runtime messages
+    chrome.runtime.onMessage.addListener(this.handleMessage.bind(this));
+    console.log('Content script listening for runtime messages');
     
     // Wait for page to be ready
     if (document.readyState === 'loading') {
@@ -33,9 +41,6 @@ class MeetInjector {
     }
 
     log(`Setting up for meeting: ${this.meetingId}`);
-    
-    // Listen for runtime messages
-    chrome.runtime.onMessage.addListener(this.handleMessage.bind(this));
     
     // Monitor DOM changes to detect when meeting starts
     this.startMeetingObserver();
@@ -232,12 +237,19 @@ class MeetInjector {
 
   private handleMessage(message: any): void {
     log('Received message:', message);
+    console.log('Content script received message:', message);
     
     switch (message.type) {
       case 'transcript':
+        console.log('Forwarding transcript message to sidebar');
         this.forwardToSidebar(message);
         break;
       case 'summary':
+        console.log('Forwarding summary message to sidebar');
+        this.forwardToSidebar(message);
+        break;
+      case 'status':
+        console.log('Forwarding status message to sidebar:', message);
         this.forwardToSidebar(message);
         break;
       case 'error':

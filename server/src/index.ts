@@ -3,16 +3,19 @@ import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
 import { v4 as uuidv4 } from 'uuid';
 import { config } from 'dotenv';
-import { createLogger } from '@shared';
+import { createLogger } from '@meetassist/shared';
 import { MeetingManager } from './meeting/MeetingManager.js';
 import { TranscriptionService } from './stt/TranscriptionService.js';
 import { SummaryService } from './summary/SummaryService.js';
 import { EmailService } from './email/EmailService.js';
 import { StorageService } from './storage/StorageService.js';
-import type { WSMessage } from '@shared';
+import type { WSMessage } from '@meetassist/shared';
 
 // Load environment variables
 config();
+
+// Enable debug logging
+process.env.DEBUG = 'meetassist:*';
 
 const log = createLogger('server');
 
@@ -106,26 +109,35 @@ class MeetAssistServer {
   }
 
   private setupWebSocket(): void {
-    this.wss.on('connection', (ws) => {
+    console.log('Setting up WebSocket server on path /ws');
+    log('Setting up WebSocket server on path /ws');
+    
+    this.wss.on('connection', (ws, req) => {
       const clientId = uuidv4();
-      log(`Client connected: ${clientId}`);
+      console.log(`Client connected: ${clientId} from ${req.socket.remoteAddress}`);
+      console.log(`WebSocket URL: ${req.url}`);
+      log(`Client connected: ${clientId} from ${req.socket.remoteAddress}`);
+      log(`WebSocket URL: ${req.url}`);
 
       ws.on('message', async (data) => {
         try {
           const message: WSMessage = JSON.parse(data.toString());
           await this.handleWebSocketMessage(ws, message, clientId);
         } catch (error) {
+          console.log('Failed to handle WebSocket message:', error);
           log('Failed to handle WebSocket message:', error);
           this.sendError(ws, 'INVALID_MESSAGE', 'Failed to parse message');
         }
       });
 
       ws.on('close', () => {
+        console.log(`Client disconnected: ${clientId}`);
         log(`Client disconnected: ${clientId}`);
         this.meetingManager.handleClientDisconnect(clientId);
       });
 
       ws.on('error', (error) => {
+        console.log(`WebSocket error for client ${clientId}:`, error);
         log(`WebSocket error for client ${clientId}:`, error);
       });
 
@@ -138,6 +150,19 @@ class MeetAssistServer {
           connected: true
         }
       });
+      
+      console.log(`Sent connection confirmation to client ${clientId}`);
+      log(`Sent connection confirmation to client ${clientId}`);
+    });
+
+    this.wss.on('error', (error) => {
+      console.log('WebSocket server error:', error);
+      log('WebSocket server error:', error);
+    });
+
+    this.wss.on('listening', () => {
+      console.log('WebSocket server is listening for connections');
+      log('WebSocket server is listening for connections');
     });
   }
 
@@ -189,19 +214,40 @@ class MeetAssistServer {
 
   public async start(port: number = 3001): Promise<void> {
     try {
+      console.log('Starting MeetAssist server...');
+      
       // Initialize all services
+      console.log('Initializing storage service...');
       await this.storageService.initialize();
+      console.log('Storage service initialized');
+      
+      console.log('Initializing transcription service...');
       await this.transcriptionService.initialize();
+      console.log('Transcription service initialized');
+      
+      console.log('Initializing summary service...');
       await this.summaryService.initialize();
+      console.log('Summary service initialized');
+      
+      console.log('Initializing email service...');
       await this.emailService.initialize();
+      console.log('Email service initialized');
+      
+      console.log('Setting up WebSocket server...');
+      this.setupWebSocket();
+      console.log('WebSocket server setup complete');
       
       this.server.listen(port, () => {
+        console.log(`🚀 MeetAssist server started on port ${port}`);
+        console.log('WebSocket endpoint: ws://localhost:3001/ws');
+        console.log('Health check: http://localhost:3001/health');
         log(`MeetAssist server started on port ${port}`);
         log('WebSocket endpoint: ws://localhost:3001/ws');
         log('Health check: http://localhost:3001/health');
         log(`Summary provider: ${this.summaryService.getProvider()}`);
       });
     } catch (error) {
+      console.error('Failed to start server:', error);
       log('Failed to start server:', error);
       process.exit(1);
     }

@@ -1,5 +1,5 @@
-import { createLogger } from '@shared';
-import type { TranscriptChunk, LanguageMode } from '@shared';
+import { createLogger } from '@meetassist/shared';
+import type { TranscriptChunk, LanguageMode } from '@meetassist/shared';
 
 const log = createLogger('transcription');
 

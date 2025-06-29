@@ -10,7 +10,11 @@
     "type-check": "tsc --noEmit",
     "lint": "eslint src --ext .ts,.tsx"
   },
+  "dependencies": {
+    "debug": "^4.3.4"
+  },
   "devDependencies": {
-    "typescript": "^5.2.0"
+    "typescript": "^5.2.0",
+    "@types/debug": "^4.1.12"
   }
 }

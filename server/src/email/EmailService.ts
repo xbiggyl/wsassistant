@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
-import { createLogger } from '@shared';
-import type { MeetingMinutes } from '@shared';
+import { createLogger } from '@meetassist/shared';
+import type { MeetingMinutes } from '@meetassist/shared';
 
 const log = createLogger('email');
 
@@ -13,7 +13,7 @@ export class EmailService {
 
     try {
       // Configure SMTP transporter
-      this.transporter = nodemailer.createTransporter({
+      this.transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST || 'localhost',
         port: parseInt(process.env.SMTP_PORT || '587'),
         secure: false, // true for 465, false for other ports

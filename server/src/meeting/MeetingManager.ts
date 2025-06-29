@@ -1,12 +1,12 @@
 import { EventEmitter } from 'events';
-import { createLogger, generateId } from '@shared';
+import { createLogger, generateId } from '@meetassist/shared';
 import type { 
   MeetingInfo, 
   TranscriptChunk, 
   Summary, 
   MeetingMinutes,
   WSMessage 
-} from '@shared';
+} from '@meetassist/shared';
 
 const log = createLogger('meeting-manager');
 

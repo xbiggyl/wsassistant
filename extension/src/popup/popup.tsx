@@ -52,6 +52,44 @@ const Popup: React.FC = () => {
     window.close();
   };
 
+  const handleMessage = (message: any) => {
+    console.log('Sidebar received message:', message); // Debug log
+    switch (message.type) {
+      case 'init':
+        log(`Initializing sidebar for meeting: ${message.meetingId}`);
+        break;
+      case 'meeting_start':
+        setState(prev => ({
+          ...prev,
+          meetingInfo: message.payload,
+          isRecording: true,
+          isConnected: true
+        }));
+        break;
+      case 'transcript':
+        setState(prev => ({
+          ...prev,
+          transcript: [...prev.transcript, message.payload]
+        }));
+        scrollToBottom(transcriptContainerRef);
+        break;
+      case 'summary':
+        setState(prev => ({
+          ...prev,
+          summaries: [...prev.summaries, message.payload]
+        }));
+        scrollToBottom(summaryContainerRef);
+        break;
+      case 'status':
+        setState(prev => ({
+          ...prev,
+          isRecording: message.payload.recording,
+          isConnected: message.payload.connected
+        }));
+        break;
+    }
+  };
+
   return (
     <div className="h-full bg-white flex flex-col">
       {/* Header */}
