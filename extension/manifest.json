@@ -1,0 +1,56 @@
+{
+  "manifest_version": 3,
+  "name": "MeetAssist - AI Meeting Assistant",
+  "version": "1.0.0",
+  "description": "Offline AI-powered meeting assistant for Google Meet with transcription, speaker identification, and intelligent summaries",
+  
+  "permissions": [
+    "activeTab",
+    "tabCapture",
+    "storage",
+    "scripting",
+    "desktopCapture"
+  ],
+  
+  "host_permissions": [
+    "https://meet.google.com/*"
+  ],
+  
+  "background": {
+    "service_worker": "dist/background.js",
+    "type": "module"
+  },
+  
+  "content_scripts": [
+    {
+      "matches": ["https://meet.google.com/*"],
+      "js": ["dist/content/inject.js"],
+      "run_at": "document_start"
+    }
+  ],
+  
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "MeetAssist",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png", 
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  
+  "web_accessible_resources": [
+    {
+      "resources": ["dist/sidebar.html", "dist/sidebar.js"],
+      "matches": ["https://meet.google.com/*"]
+    }
+  ]
+}
